@@ -56,7 +56,15 @@ UPDATE customers SET biography = random_string(7000) WHERE id=1;
 
 Run query for show TOAST name and size:
 ```sql
-SELECT c.relnamespace::regnamespace::text AS schema_name, c.relname AS source_table_name, c.relpages AS source_table_num_of_pages, to_char(c.reltuples, '9G999G999G999') AS source_table_num_of_tup, t.relname AS toast_table_name, t.relpages AS toast_table_num_of_pages, to_char(t.reltuples, '9G999G999G999') AS toast_table_num_of_tup, pg_size_pretty(pg_relation_size(c.reltoastrelid)) AS toast_size FROM pg_class c JOIN pg_class t ON c.reltoastrelid = t.oid JOIN pg_namespace n ON n.oid = t.relnamespace WHERE c.relnamespace::regnamespace::text NOT IN ('pg_catalog', 'information_schema') ORDER BY pg_total_relation_size(c.reltoastrelid) DESC;
+SELECT c.relnamespace::regnamespace::text AS schema_name, c.relname AS source_table_name,
+c.relpages AS source_table_num_of_pages, to_char(c.reltuples, '9G999G999G999') AS source_table_num_of_tup,
+t.relname AS toast_table_name, t.relpages AS toast_table_num_of_pages, to_char(t.reltuples, '9G999G999G999') AS toast_table_num_of_tup,
+pg_size_pretty(pg_relation_size(c.reltoastrelid)) AS toast_size 
+FROM pg_class c 
+JOIN pg_class t ON c.reltoastrelid = t.oid 
+JOIN pg_namespace n ON n.oid = t.relnamespace 
+WHERE c.relnamespace::regnamespace::text NOT IN ('pg_catalog', 'information_schema')
+ORDER BY pg_total_relation_size(c.reltoastrelid) DESC;
 ```
 
 
