@@ -1,4 +1,17 @@
-# PostgreSQL + Redpanda + Debezium
+# PostgreSQL + Redpanda + Debezium and TOAST
+
+So what’s that? TOAST (The Oversized-Attribute Storage Technique) is a mechanism in Postgres which stores large column values in
+multiple physical rows, circumventing the page size limit of 8 KB.
+
+Typically, TOAST storage is transparent to the user, so you don’t really have to care about it. There’s an exception, though: if a table row has changed,
+any unchanged values that were stored using the TOAST mechanism are not included in the message that Debezium receives from the database, unless they are
+part of the table’s replica identity. Consequently, such unchanged TOAST column value will not be contained in Debezium data change events sent to Apache Kafka.
+
+When encountering an unchanged TOAST column value in the logical replication message received from the database, the Debezium Postgres connector will represent
+that value with a configurable placeholder. By default, that’s the literal __debezium_unavailable_value, but that value can be overridden using the
+toasted.value.placeholder connector property.
+
+In this git repository I will show how to reproduce this issue.
 
 ### Requirements
 
@@ -49,9 +62,23 @@ docker run --tty --rm -i \
     bash -c 'pgcli postgresql://toast:toast@postgres:5432/toast'
 ```
 
-Run query:
+Test scenario:
 ```sql
 UPDATE customers SET biography = random_string(7000) WHERE id=1;
+-- View the "biography" field in kafkacat output. We see that the changes are being pushed to Redpanda.
+
+UPDATE customers SET age = 1 WHERE id=1;
+-- Now view at the "biography" field in the kafkacat output again. We see that the "biography" field is not present in Redpanda, it contains __debezium_unavailable_value
+
+-- Let's try to fix this problem. 
+ALTER TABLE customers REPLICA IDENTITY FULL;
+UPDATE customers SET age = 2 WHERE id=1;
+-- Now view the "biography" field in kafkacat output. We see that the contents of the "biography" field began to appear in before and after payload
+
+-- Change REPLICA IDENTITY to default value
+ALTER TABLE customers REPLICA IDENTITY DEFAULT;
+UPDATE customers SET age = 3 WHERE id=1;
+-- Now view at the "biography" field in the kafkacat output again. And again we don't see any data in the "biography" field.
 ```
 
 Run query for show TOAST name and size:
