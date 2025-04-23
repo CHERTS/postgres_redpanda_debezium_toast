@@ -35,7 +35,7 @@ http PUT http://localhost:8083/connectors/toast-connector/config < register-post
 Observe the marker value in the biography field of corresponding change events:
 ```bash
 docker run -it --rm \
-    --network redpanda_debezium_network \
+    --network postgres_redpanda_debezium_toast_debezium_network \
     quay.io/debezium/tooling:1.2 \
     /bin/bash -c "kafkacat -b redpanda:9092 \
     -C -o beginning -q -u -t toast_topic.public.customers | jq ."
@@ -44,7 +44,7 @@ docker run -it --rm \
 Connect to PostgreSQL and run query:
 ```bash
 docker run --tty --rm -i \
-    --network redpanda_debezium_network \
+    --network postgres_redpanda_debezium_toast_debezium_network \
     quay.io/debezium/tooling:1.2 \
     bash -c 'pgcli postgresql://toast:toast@postgres:5432/toast'
 ```
