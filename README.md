@@ -65,20 +65,24 @@ docker run --tty --rm -i \
 Test scenario:
 ```sql
 UPDATE customers SET biography = random_string(7000) WHERE id=1;
--- View the "biography" field in kafkacat output. We see that the changes are being pushed to Redpanda.
+-- View the "biography" field in kafkacat output.
+-- We see that the changes are being pushed to Redpanda.
 
 UPDATE customers SET age = 1 WHERE id=1;
--- Now view at the "biography" field in the kafkacat output again. We see that the "biography" field is not present in Redpanda, it contains __debezium_unavailable_value
+-- Now view at the "biography" field in the kafkacat output again.
+-- We see that the "biography" field is not present in Redpanda, it contains __debezium_unavailable_value
 
 -- Let's try to fix this problem. 
 ALTER TABLE customers REPLICA IDENTITY FULL;
 UPDATE customers SET age = 2 WHERE id=1;
--- Now view the "biography" field in kafkacat output. We see that the contents of the "biography" field began to appear in before and after payload
+-- Now view the "biography" field in kafkacat output.
+-- We see that the contents of the "biography" field began to appear in before and after payload
 
 -- Change REPLICA IDENTITY to default value
 ALTER TABLE customers REPLICA IDENTITY DEFAULT;
 UPDATE customers SET age = 3 WHERE id=1;
--- Now view at the "biography" field in the kafkacat output again. And again we don't see any data in the "biography" field.
+-- Now view at the "biography" field in the kafkacat output again.
+-- And again we don't see any data in the "biography" field.
 ```
 
 Run query for show TOAST name and size:
