@@ -1,15 +1,10 @@
 # PostgreSQL + Redpanda + Debezium and TOAST
 
-So what’s that? TOAST (The Oversized-Attribute Storage Technique) is a mechanism in Postgres which stores large column values in
-multiple physical rows, circumventing the page size limit of 8 KB.
+So what’s that? TOAST (The Oversized-Attribute Storage Technique) is a mechanism in Postgres which stores large column values in multiple physical rows, circumventing the page size limit of 8 KB.
 
-Typically, TOAST storage is transparent to the user, so you don’t really have to care about it. There’s an exception, though: if a table row has changed,
-any unchanged values that were stored using the TOAST mechanism are not included in the message that Debezium receives from the database, unless they are
-part of the table’s replica identity. Consequently, such unchanged TOAST column value will not be contained in Debezium data change events sent to Apache Kafka (Redpanda).
+Typically, TOAST storage is transparent to the user, so you don’t really have to care about it. There’s an exception, though: if a table row has changed, any unchanged values that were stored using the TOAST mechanism are not included in the message that Debezium receives from the database, unless they are part of the table’s replica identity. Consequently, such unchanged TOAST column value will not be contained in Debezium data change events sent to Apache Kafka (Redpanda).
 
-When encountering an unchanged TOAST column value in the logical replication message received from the database, the Debezium Postgres connector will represent
-that value with a configurable placeholder. By default, that’s the literal `__debezium_unavailable_value`, but that value can be overridden using the
-`toasted.value.placeholder` connector property.
+When encountering an unchanged TOAST column value in the logical replication message received from the database, the Debezium Postgres connector will represent that value with a configurable placeholder. By default, that’s the literal `__debezium_unavailable_value`, but that value can be overridden using the `toasted.value.placeholder` connector property.
 
 In this git repository I will show how to reproduce this issue.
 
