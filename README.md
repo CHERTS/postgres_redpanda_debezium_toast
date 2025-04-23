@@ -8,8 +8,8 @@ any unchanged values that were stored using the TOAST mechanism are not included
 part of the table’s replica identity. Consequently, such unchanged TOAST column value will not be contained in Debezium data change events sent to Apache Kafka.
 
 When encountering an unchanged TOAST column value in the logical replication message received from the database, the Debezium Postgres connector will represent
-that value with a configurable placeholder. By default, that’s the literal __debezium_unavailable_value, but that value can be overridden using the
-toasted.value.placeholder connector property.
+that value with a configurable placeholder. By default, that’s the literal `__debezium_unavailable_value`, but that value can be overridden using the
+`toasted.value.placeholder` connector property.
 
 In this git repository I will show how to reproduce this issue.
 
