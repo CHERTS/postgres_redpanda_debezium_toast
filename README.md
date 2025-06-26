@@ -8,6 +8,10 @@ When encountering an unchanged TOAST column value in the logical replication mes
 
 In this git repository I will show how to reproduce this issue.
 
+How can this problem be solved?
+
+Gunnar Morling in his article [Backfilling Postgres TOAST Columns in Debezium Data Change Events](https://www.morling.dev/blog/backfilling-postgres-toast-columns-debezium-change-events/) discussed all the solution for solving this problem. The fastest solution is to use [Debezium Reselect Postprocessor](https://debezium.io/documentation/reference/stable/post-processors/reselect-columns.html)
+
 ### Requirements
 
 - Docker
